@@ -9,6 +9,7 @@
 *.d
 *.elf
 *.map
+*.hex
 
 
 # Packages #

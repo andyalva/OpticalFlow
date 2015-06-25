@@ -155,7 +155,7 @@ int main(void)
 {
 	int8_t delta_x;
 	int8_t delta_y;
-	int8_t id;
+	//int8_t id;
 	int8_t motion;
 	clock_setup();
 	gpio_setup();
@@ -206,17 +206,26 @@ int main(void)
 		gpio_clear(GPIOE, GPIO3);
 		spi_send8(SPI2, ADNS3080_DELTA_Y);
 		spi_read8(SPI2);
-		for (i = 0; i < 80000; i++)
+		for (i = 0; i < 50000; i++)
 			__asm__("nop");
 		spi_send8(SPI2, 0);
 		delta_y=spi_read8(SPI2);
 		gpio_set(GPIOE, GPIO3);
 		if (delta_y < 64 && delta_y > -64){
-		my_usart_print_int(USART2, (delta_y));}
+			if (delta_y <64 && delta_y >0){
+				gpio_clear(GPIOE, GPIO15);
+				gpio_set(GPIOE, GPIO11);}
+			if(delta_y > -64 && delta_y <0){
+				gpio_clear(GPIOE, GPIO11);
+				gpio_set(GPIOE, GPIO15);}
+			if(delta_y == 0){
+				gpio_clear(GPIOE, GPIO11);
+				gpio_clear(GPIOE, GPIO15);}
+			my_usart_print_int(USART2, (delta_y));}
 
 
 		gpio_toggle(GPIOE, GPIO12);	/* LED on/off */
-		for (i = 0; i < 1000000; i++)
+		for (i = 0; i < 100000; i++)
 			__asm__("nop");
 	}
 
