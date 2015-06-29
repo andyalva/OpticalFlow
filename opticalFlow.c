@@ -153,10 +153,14 @@ static void gpio_setup(void)
 
 int main(void)
 {
-	int8_t delta_x;
-	int8_t delta_y;
-	//int8_t id;
-	int8_t motion;
+	unsigned char motion;	
+	signed char dx;
+	signed char dy;
+	unsigned char squal;
+	unsigned char shutter_upper;
+	unsigned char shutter_lower;
+	unsigned char max_pixel;
+
 	clock_setup();
 	gpio_setup();
 	usart_setup();
@@ -175,57 +179,60 @@ int main(void)
 
 	while (1) {
 		int i;
-		/*gpio_clear(GPIOE, GPIO3);
-		spi_send8(SPI2, ADNS3080_PRODUCT_ID);
-		spi_read8(SPI2);
-		spi_send8(SPI2, 0);
-		id=spi_read8(SPI2);
-		gpio_set(GPIOE, GPIO3);
-		my_usart_print_int(USART2, (id));*/
 
 
 		gpio_clear(GPIOE, GPIO3);
-		spi_send8(SPI2, ADNS3080_MOTION);
+		spi_send8(SPI2, ADNS3080_MOTION_BURST);
 		spi_read8(SPI2);
-		spi_send8(SPI2, 0);
-		motion=spi_read8(SPI2);
-		gpio_set(GPIOE, GPIO3);
-		//my_usart_print_int(USART2, (motion));
 
-		gpio_clear(GPIOE, GPIO3);
-		spi_send8(SPI2, ADNS3080_DELTA_X);
-		spi_read8(SPI2);
-		for (i = 0; i < 100000; i++)
-			__asm__("nop");
-		spi_send8(SPI2, 0);
-		delta_x=spi_read8(SPI2);
-		gpio_set(GPIOE, GPIO3);
-		/*if (delta_x < 64 && delta_x > -64){
-		my_usart_print_int(USART2, (delta_x));}*/
+		spi_send8(SPI2, 0); 
+		motion = spi_read8(SPI2);
 
-		gpio_clear(GPIOE, GPIO3);
-		spi_send8(SPI2, ADNS3080_DELTA_Y);
-		spi_read8(SPI2);
-		for (i = 0; i < 50000; i++)
-			__asm__("nop");
 		spi_send8(SPI2, 0);
-		delta_y=spi_read8(SPI2);
+		dx = spi_read8(SPI2);
+
+		spi_send8(SPI2, 0);
+		dy = spi_read8(SPI2);
+
+		spi_send8(SPI2, 0);
+		squal = spi_read8(SPI2);
+
+		spi_send8(SPI2, 0);
+		shutter_upper = spi_read8(SPI2);
+
+		spi_send8(SPI2, 0);
+		shutter_lower = spi_read8(SPI2);
+
+		spi_send8(SPI2, 0);
+		max_pixel = spi_read8(SPI2);
 		gpio_set(GPIOE, GPIO3);
-		if (delta_y < 64 && delta_y > -64){
-			if (delta_y <64 && delta_y >0){
-				gpio_clear(GPIOE, GPIO15);
-				gpio_set(GPIOE, GPIO11);}
-			if(delta_y > -64 && delta_y <0){
-				gpio_clear(GPIOE, GPIO11);
-				gpio_set(GPIOE, GPIO15);}
-			if(delta_y == 0){
-				gpio_clear(GPIOE, GPIO11);
-				gpio_clear(GPIOE, GPIO15);}
-			my_usart_print_int(USART2, (delta_y));}
+
+		my_usart_print_int(USART2, (dx));
+
+		if(dx >0){
+			gpio_clear(GPIOE, GPIO15);
+			gpio_set(GPIOE, GPIO11);}
+		if(dx <0){
+			gpio_clear(GPIOE, GPIO11);
+			gpio_set(GPIOE, GPIO15);}
+		if(dx == 0){
+			gpio_clear(GPIOE, GPIO11);
+			gpio_clear(GPIOE, GPIO15);}
+
+		if(dy >0){
+			gpio_clear(GPIOE, GPIO13);
+			gpio_set(GPIOE, GPIO9);}
+		if(dy <0){
+			gpio_clear(GPIOE, GPIO9);
+			gpio_set(GPIOE, GPIO13);}
+		if(dy == 0){
+			gpio_clear(GPIOE, GPIO9);
+			gpio_clear(GPIOE, GPIO13);}
+		my_usart_print_int(USART2, (dy));
 
 
 		gpio_toggle(GPIOE, GPIO12);	/* LED on/off */
-		for (i = 0; i < 100000; i++)
+		for (i = 0; i < 80000; i++)
 			__asm__("nop");
 	}
 
